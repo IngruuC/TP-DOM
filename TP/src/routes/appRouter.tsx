@@ -22,12 +22,20 @@ export const AppRouter = () => {
     };
     setCurrentUser(fakeUser);
   };
+  
   const handleLogout = () => {
     setCurrentUser(null);
   };
 
   return (
     <Routes>
+      {/* Ruta por defecto */}
+      <Route path="/" element={<Navigate to="/home" />} />
+      
+      {/* Home público */}
+      <Route path="/home" element={<Home />} />
+      
+      {/* Login */}
       <Route
         path="/login"
         element={
@@ -38,37 +46,38 @@ export const AppRouter = () => {
           )
         }
       />
-      <Route
-        path="/home"
-        element={
-          <ProtectedRouter isAllowed={!!currentUser} redirectTo="/login">
-            <Home />
-          </ProtectedRouter>
-        }
-      />
+      
+      {/* Products - requiere login */}
       <Route
         path="/products"
         element={
-          <ProtectedRouter isAllowed={!!currentUser && (currentUser.permissionLevel.includes("vendedor") || currentUser.permissionLevel.includes("admin"))} redirectTo="/login">
+          <ProtectedRouter 
+            isAllowed={!!currentUser && (currentUser.permissionLevel.includes("vendedor") || currentUser.permissionLevel.includes("admin"))} 
+            redirectTo="/home"
+          >
             <Products />
           </ProtectedRouter>
         }
       />
+      
+      {/* Dashboard Admin - requiere rol admin */}
       <Route
         path="/dashboard-admin"
         element={
           <ProtectedRouter
             isAllowed={!!currentUser && currentUser.permissionLevel.includes("admin")}
-            redirectTo="/dashboard-principal"
+            redirectTo="/home"
           >
             <DashboardAdmin />
           </ProtectedRouter>
         }
       />
+      
+      {/* Dashboard Principal - requiere login */}
       <Route
         path="/dashboard-principal"
         element={
-          <ProtectedRouter isAllowed={!!currentUser} redirectTo="/login">
+          <ProtectedRouter isAllowed={!!currentUser} redirectTo="/home">
             <DashboardPrincipal user={currentUser} onLogout={handleLogout} />
           </ProtectedRouter>
         }
